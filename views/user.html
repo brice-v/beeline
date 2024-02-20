@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    {{ template "header" }}
+    <body>
+        <h1>{{ .Username }}'s Timeline</h1>
+        {{ if .IsUsernameLoggedIn }}
+        <form action="/logout" method="post">
+            <input type="submit" value="Logout">
+            <input type="hidden" name="username" value="{{ .Username }}">
+        </form>
+        {{ else }}
+            {{ if .IsNotFollowing }}
+            <form action="/follow" method="post">
+                <input type="submit" value="Follow">
+                <input type="hidden" name="username" value="{{ .Username }}">
+                <input type="hidden" name="follower" value="{{ .FollowerUsername}}">
+            </form>
+            {{ end }}
+        {{ end }}
+        <p>Below are all the posts from {{ .Username }}. <a href="/">Or you can go back home!</a></p>
+        <br>
+        <div>{{ template "renderPosts" .Posts }}</div>
+        <br>
+    </body>
+</html>

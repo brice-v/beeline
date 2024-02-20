@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    {{ template "header" }}
+    <body>
+        <h1>beeline login!</h1>
+        <p>beeline is a platform where you can post messages on a timeline and follow what others are saying!</p>
+        <p>It has a builtin chat system and pastebin too!</p>
+        {{ if . }}
+        <p>
+            <span style="color: red;">Error: {{ .Error }}</span>
+            <br>
+        </p>
+        {{ end }}
+        <form action="/login" method="post">
+            <input type="text"
+                   placeholder="Enter username..."
+                   name="username"
+                   autofocus="true"
+                   autocomplete="off"
+                   required>
+            <input type="password"
+                   placeholder="Enter password..."
+                   name="password"
+                   autocomplete="off"
+                   required>
+            <input type="submit" value="Login">
+        </form>
+        <p>Don't have an account? <a href="/signup">Signup here!</a></p>
+        <br>
+    </body>
+</html>

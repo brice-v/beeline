@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    {{ template "header" }}
+    <body>
+        {{ template "navbar" . }}
+        <h1>Paste into the textarea below...</h1>
+        {{ if .Error }}
+        <p style="color: red;">An error has occurred creating the paste! {{ . }}</p>
+        {{ end }}
+        <div>
+            <form action="/paste" method="post">
+                <label for="title">Title:</label>
+                <input type="text" name="title" required>
+                <label for="text">Paste:</label>
+                <textarea name="text" autofocus="true" required></textarea>
+                <input type="submit" value="Create New Paste">
+                <input type="hidden" name="username" value="{{ .Username }}">
+            </form>
+        </div>
+        <br>
+    </body>
+</html>
