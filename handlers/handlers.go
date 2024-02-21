@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -160,15 +159,21 @@ func NewPaste(c *fiber.Ctx) error {
 		})
 	}
 	getDB(c).NewPaste(p)
-	lines := strings.Count(p.Text, "\n")
 	return c.Render("views/paste-ro", fiber.Map{
 		"Username":   un,
 		"Title":      title,
 		"Text":       text,
 		"Id":         p.ID,
-		"Height":     lines,
 		"IsLoggedIn": true,
 	})
+}
+
+func Paste(c *fiber.Ctx) error {
+	user, isValid := checkAndGetCurrentUser(c)
+	if !isValid {
+		return c.Redirect("/login")
+	}
+	return c.Render("views/paste", fiber.Map{"IsLoggedIn": true, "Username": user.Username})
 }
 
 func GetPaste(c *fiber.Ctx) error {
@@ -187,13 +192,11 @@ func GetPaste(c *fiber.Ctx) error {
 		log.Printf("GetPaste: Paste not found")
 		return c.Redirect("/my-pastes")
 	}
-	lines := strings.Count(paste.Text, "\n")
 	return c.Render("views/paste-ro", fiber.Map{
 		"Username":   user.Username,
 		"Title":      paste.Title,
 		"Text":       paste.Text,
 		"Id":         paste.ID,
-		"Height":     lines,
 		"IsLoggedIn": true,
 	})
 }

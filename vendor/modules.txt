@@ -17,8 +17,11 @@ github.com/gofiber/fiber/v2/internal/memory
 github.com/gofiber/fiber/v2/internal/schema
 github.com/gofiber/fiber/v2/internal/wmi
 github.com/gofiber/fiber/v2/log
+github.com/gofiber/fiber/v2/middleware/compress
+github.com/gofiber/fiber/v2/middleware/encryptcookie
 github.com/gofiber/fiber/v2/middleware/favicon
 github.com/gofiber/fiber/v2/middleware/filesystem
+github.com/gofiber/fiber/v2/middleware/helmet
 github.com/gofiber/fiber/v2/middleware/limiter
 github.com/gofiber/fiber/v2/middleware/monitor
 github.com/gofiber/fiber/v2/utils

@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html>
-    {{ template "header" }}
-    <body>
-        {{ template "navbar" . }}
-        <div>
-            <label for="id">ID:</label>
-            <input type="text" name="id" readonly value="{{ .Id }}"/>
-            <label for="title">Title:</label>
-            <input type="text" name="title" readonly value="{{ .Title }}"/>
-            <label for="text">Paste:</label>
-            <textarea name="text" autofocus="true" style="height: {{ .Height }};" readonly>{{ .Text }}</textarea>
-        </div>
-        <br>
-    </body>
+{{ template "header" }}
+
+<body>
+    {{ template "navbar" . }}
+    <div>
+        <label for="id">ID:</label>
+        <input type="text" name="id" readonly value="{{ .Id }}" />
+        <label for="title">Title:</label>
+        <input type="text" name="title" readonly value="{{ .Title }}" />
+        <label for="text">Paste:</label>
+        <textarea name="text" autofocus="true" id="textarea-paste" onkeyup="textAreaAdjust()" onfocus="textAreaAdjust()"
+            style="overflow: hidden;" readonly>{{ .Text }}</textarea>
+    </div>
+    <br>
+</body>
+
 </html>

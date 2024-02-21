@@ -13,8 +13,11 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/template/html/v2"
@@ -68,6 +71,11 @@ func (a *App) Run() {
 }
 
 func (a *App) setupMiddlewareAndDbc() {
+	a.app.Use(helmet.New())
+	a.app.Use(encryptcookie.New(encryptcookie.Config{
+		Key: encryptcookie.GenerateKey(),
+	}))
+	a.app.Use(compress.New())
 	// use embedded public directory
 	a.app.Use("/public", filesystem.New(filesystem.Config{
 		Root:       http.FS(publicStaticDir),
@@ -107,6 +115,7 @@ func (a *App) setupRoutes() {
 		},
 	}))
 	a.app.Get("/all", handlers.All)
+	a.app.Get("/paste", handlers.Paste)
 	a.app.Get("/my-pastes", handlers.MyPastes)
 	a.app.Get("/paste/:id", handlers.GetPaste)
 
