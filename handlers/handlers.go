@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"beeline/models"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/url"
 	"strconv"
 	"time"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -212,5 +215,82 @@ func MyPastes(c *fiber.Ctx) error {
 		"Username":   user.Username,
 		"Pastes":     pastes,
 		"IsLoggedIn": true,
+	})
+}
+
+func Chat(c *fiber.Ctx) error {
+	user, isValid := checkAndGetCurrentUser(c)
+	if !isValid {
+		return c.Redirect("/login")
+	}
+	return c.Render("views/chat", fiber.Map{
+		"Username":   user.Username,
+		"IsLoggedIn": true,
+	})
+}
+
+func ChatPost(c *fiber.Ctx) error {
+	_, isValid := checkAndGetCurrentUser(c)
+	if !isValid {
+		return c.Redirect("/login")
+	}
+	room := c.FormValue("room")
+	if room == "" {
+		return c.Redirect("/chat")
+	}
+
+	return c.Redirect("/chat/" + url.PathEscape(room))
+}
+
+func ChatRoom(c *fiber.Ctx) error {
+	user, isValid := checkAndGetCurrentUser(c)
+	if !isValid {
+		return c.Redirect("/login")
+	}
+	room := c.Params("room")
+	if room == "" {
+		return c.Redirect("/chat")
+	}
+	return c.Render("views/chatroom", fiber.Map{
+		"Room":       room,
+		"Username":   user.Username,
+		"IsLoggedIn": true,
+	})
+}
+
+func WSChatRoom() func(*fiber.Ctx) error {
+	return websocket.New(func(c *websocket.Conn) {
+		log.Println(c.Params("room")) // 123
+
+		var (
+			mt  int
+			msg []byte
+			err error
+		)
+		for {
+			if mt, msg, err = c.ReadMessage(); err != nil {
+				log.Println("read:", err)
+				break
+			}
+			if mt != websocket.TextMessage {
+				c.Close()
+				return
+			}
+			var cm models.ChatMessage
+			if err := json.Unmarshal(msg, &cm); err != nil {
+				log.Printf("json unmarshal: %s", err.Error())
+				break
+			}
+			if cm.Message == "" {
+				continue
+			}
+			cm.Timestamp = time.Now()
+			log.Printf("mt = %d, recv: %s, cm = %s", mt, msg, cm)
+
+			if err = c.WriteMessage(mt, cm.ToTextMessage()); err != nil {
+				log.Println("write:", err)
+				break
+			}
+		}
 	})
 }

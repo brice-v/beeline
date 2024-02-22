@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+{{ template "header" }}
+
+<body>
+    {{ template "navbar" . }}
+    <div id="chat_body">
+        <div id="chat_room">
+        </div>
+    </div>
+    <div hx-ws="connect:/ws/chat/{{ .Room }}">
+        <form hx-ws="send:submit" id="chat_form" onsubmit="handleChatSend()">
+            <input type="text" name="message" size="64" autofocus autocomplete="off" id="message_input" />
+            <input type="submit" value="Send" />
+            <input type="hidden" name="username" value="{{ .Username }}">
+        </form>
+    </div>
+</body>

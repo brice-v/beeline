@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -71,4 +72,19 @@ func (p *Paste) Validate() error {
 		return fmt.Errorf("paste text cannot be empty string")
 	}
 	return nil
+}
+
+type ChatMessage struct {
+	Username  string          `json:"username"`
+	Message   string          `json:"message"`
+	Headers   json.RawMessage `json:"HEADER"`
+	Timestamp time.Time
+}
+
+func (cm ChatMessage) String() string {
+	return fmt.Sprintf("ChatMessage{Username: %s, Message: %s, Timestamp: %s}", cm.Username, cm.Message, cm.Timestamp.Format(time.DateTime))
+}
+
+func (cm ChatMessage) ToTextMessage() []byte {
+	return []byte(fmt.Sprintf(`<div hx-swap-oob="beforeend:#chat_room"><p>%s - %s: %s</p></div>`, cm.Timestamp.Format(time.DateTime), cm.Username, cm.Message))
 }

@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
@@ -87,6 +88,13 @@ func (a *App) setupMiddlewareAndDbc() {
 		File:       "public/favicon.ico",
 	}))
 
+	a.app.Use("/ws", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
+
 	dbc, err := db.NewAndMigrate(DB_NAME)
 	if err != nil {
 		log.Fatal(err)
@@ -125,6 +133,12 @@ func (a *App) setupRoutes() {
 	a.app.Post("/new-post", handlers.NewPost)
 	a.app.Post("/logout", handlers.Logout)
 	a.app.Post("/follow", handlers.Follow)
+
+	a.app.Get("/chat", handlers.Chat)
+	a.app.Post("/chat", handlers.ChatPost)
+	a.app.Get("/chat/:room", handlers.ChatRoom)
+
+	a.app.Get("/ws/chat/:room", handlers.WSChatRoom())
 }
 
 func main() {

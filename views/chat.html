@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{{ template "header" }}
+
+<body>
+    {{ template "navbar" . }}
+    <h1>Enter a chatroom to join...</h1>
+    <div>
+        <form action="/chat" method="post">
+            <label for="room">Room:</label>
+            <input type="text" name="room" required>
+            <input type="submit" value="Join Room!">
+            <input type="hidden" name="username" value="{{ .Username }}">
+        </form>
+    </div>
+    <br>
+</body>
