@@ -20,7 +20,7 @@
             setTimeout(() => {
                 let element = document.getElementById('message_input');
                 element.value = '';
-                console.log('element = ', element)
+                element.scrollIntoView({behavior: 'smooth'});
             }, 1);
         }
     </script>

@@ -11,9 +11,18 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func Monitor() func(*fiber.Ctx) error {
+	return monitor.New(monitor.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return !validateUser(c, "brice")
+		},
+	})
+}
 
 func Index(c *fiber.Ctx) error {
 	user, isValid := checkAndGetCurrentUser(c)
@@ -84,7 +93,7 @@ func User(c *fiber.Ctx) error {
 	// username were getting to
 	un := c.Params("username")
 	currentUn := c.Cookies("username")
-	if !ValidateUser(c, currentUn) {
+	if !validateUser(c, currentUn) {
 		return c.Redirect("/")
 	}
 	dbc := getDB(c)
@@ -105,7 +114,7 @@ func User(c *fiber.Ctx) error {
 func NewPost(c *fiber.Ctx) error {
 	m := c.FormValue("message")
 	un := c.FormValue("username")
-	if !ValidateUser(c, un) {
+	if !validateUser(c, un) {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	post := &models.Post{
@@ -146,7 +155,7 @@ func NewPaste(c *fiber.Ctx) error {
 	title := c.FormValue("title")
 	text := c.FormValue("text")
 	un := c.FormValue("username")
-	if !ValidateUser(c, un) {
+	if !validateUser(c, un) {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	p := &models.Paste{
@@ -262,6 +271,11 @@ func WSChatRoom() func(*fiber.Ctx) error {
 	return websocket.New(func(c *websocket.Conn) {
 		log.Println(c.Params("room")) // 123
 
+		user, isValid := checkAndGetCurrentUserWS(c)
+		if !isValid {
+			c.Close()
+			return
+		}
 		var (
 			mt  int
 			msg []byte
@@ -281,7 +295,7 @@ func WSChatRoom() func(*fiber.Ctx) error {
 				log.Printf("json unmarshal: %s", err.Error())
 				break
 			}
-			if cm.Message == "" {
+			if cm.Message == "" || cm.Username != user.Username {
 				continue
 			}
 			cm.Timestamp = time.Now()

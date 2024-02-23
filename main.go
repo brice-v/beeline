@@ -20,7 +20,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/template/html/v2"
 )
 
@@ -117,11 +116,7 @@ func (a *App) setupRoutes() {
 	a.app.Get("/login", handlers.LoginUI)
 	a.app.Get("/logout", handlers.GetLogout)
 	a.app.Get("/user/:username", handlers.User)
-	a.app.Get("/monitor", monitor.New(monitor.Config{
-		Next: func(c *fiber.Ctx) bool {
-			return !handlers.ValidateUser(c, "brice")
-		},
-	}))
+	a.app.Get("/monitor", handlers.Monitor())
 	a.app.Get("/all", handlers.All)
 	a.app.Get("/paste", handlers.Paste)
 	a.app.Get("/my-pastes", handlers.MyPastes)
