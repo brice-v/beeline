@@ -98,6 +98,7 @@ func (a *App) setupMiddlewareAndDbc() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	dbc.CreateAdmin()
 	a.dbc = dbc
 	// store db connection in locals to be accessible by all reqs
 	a.app.Use(func(c *fiber.Ctx) error {
@@ -116,6 +117,7 @@ func (a *App) setupRoutes() {
 	a.app.Get("/login", handlers.LoginUI)
 	a.app.Get("/logout", handlers.GetLogout)
 	a.app.Get("/user/:username", handlers.User)
+	a.app.Get("/users", handlers.Users)
 	a.app.Get("/monitor", handlers.Monitor())
 	a.app.Get("/all", handlers.All)
 	a.app.Get("/paste", handlers.Paste)

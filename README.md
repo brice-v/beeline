@@ -8,6 +8,10 @@ A small indie web experience for you and your friends.
 - A very basic pastebin for you alone
 - Single file deployment
 
+### Config
+
+- Set `BEELINE_ADMIN_PW` before starting for the first time to create an admin user
+
 ### TODO
 
 - Add realtime chat area with websockets?
@@ -19,3 +23,4 @@ A small indie web experience for you and your friends.
 - See if we need to include username in cookie?
 - Update Readme
 - Update Website with link once this is in better shape
+- Finish `/users` link for admins

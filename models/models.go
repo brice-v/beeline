@@ -12,10 +12,16 @@ type User struct {
 	gorm.Model
 	Username string `gorm:"primaryKey"`
 	Password string
+
+	FailedLoginAttempts int
 }
 
 func (u User) String() string {
-	return fmt.Sprintf("User{Username: %s, Password: N/A}", u.Username)
+	return fmt.Sprintf("User{Username: %s, Password: N/A, FailedLoginAttempts: %d}", u.Username, u.FailedLoginAttempts)
+}
+
+func (u *User) IsAdmin() bool {
+	return u.Username == "admin" || u.Username == "brice"
 }
 
 type Post struct {

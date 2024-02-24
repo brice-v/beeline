@@ -3,6 +3,7 @@ package db
 import (
 	"beeline/models"
 	"log"
+	"os"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
@@ -39,6 +40,42 @@ func NewAndMigrate(dbName string) (*DB, error) {
 		return nil, err
 	}
 	return &DB{db}, nil
+}
+
+func (d *DB) CreateAdmin() {
+	pw := os.Getenv("BEELINE_ADMIN_PW")
+	if pw == "" {
+		log.Printf("`BEELINE_ADMIN_PW` is empty")
+		return
+	}
+	d.CreateUser("admin", pw)
+}
+
+func (d *DB) IncrementFailedLoginAttempts(username string) {
+	user, ok := d.FindUser(username)
+	if !ok {
+		log.Printf("DB::IncrementFailedLoginAttempts: username `%s` not found", username)
+		return
+	}
+	currentFailedLoginAttempts := user.FailedLoginAttempts
+	txResult := d.db.Model(&user).Update("failed_login_attempts", currentFailedLoginAttempts+1)
+	if txResult.Error != nil {
+		log.Printf("DB::IncrementFailedLoginAttempts: error: %s", txResult.Error.Error())
+		return
+	}
+}
+
+func (d *DB) ResetFailedLoginAttempts(username string) {
+	user, ok := d.FindUser(username)
+	if !ok {
+		log.Printf("DB::ResetFailedLoginAttempts: username `%s` not found", username)
+		return
+	}
+	txResult := d.db.Model(&user).Update("failed_login_attempts", 0)
+	if txResult.Error != nil {
+		log.Printf("DB::ResetFailedLoginAttempts: error: %s", txResult.Error.Error())
+		return
+	}
 }
 
 func (d *DB) FindUser(username string) (*models.User, bool) {

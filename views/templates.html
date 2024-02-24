@@ -9,6 +9,14 @@
         li a:hover {
             background-color: #12191f;
         }
+
+        .navbar_link {
+            display: block;
+            text-align: center;
+            padding: 1em 1em;
+            text-decoration: none;
+            color: white;
+        }
     </style>
     <script>
         function textAreaAdjust() {
@@ -20,7 +28,7 @@
             setTimeout(() => {
                 let element = document.getElementById('message_input');
                 element.value = '';
-                element.scrollIntoView({behavior: 'smooth'});
+                element.scrollIntoView({ behavior: 'smooth' });
             }, 1);
         }
     </script>
@@ -48,26 +56,15 @@
 
 {{ define "navbar" }}
 <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #202b38;">
-    <li style="float: left;"><a
-            style="display: block; text-align: center; padding: 1em 1em; text-decoration: none; color: white;"
-            href="/">Home</a></li>
-    <li style="float: left;"><a
-            style="display: block; text-align: center; padding: 1em 1em; text-decoration: none; color: white;"
-            href="/paste">Pastebin</a></li>
-    {{ if .IsLoggedIn }}
-    <li style="float: left;"><a
-            style="display: block; text-align: center; padding: 1em 1em; text-decoration: none; color: white;"
-            href="/logout">Logout</a></li>
-    <li style="float: left;"><a
-            style="display: block; text-align: center; padding: 1em 1em; text-decoration: none; color: white;"
-            href="/my-pastes">My Pastes</a></li>
-    <li style="float: left;"><a
-            style="display: block; text-align: center; padding: 1em 1em; text-decoration: none; color: white;"
-            href="/chat">Chat</a></li>
-    {{ else }}
-    <li style="float: left;"><a
-            style="display: block; text-align: center; padding: 1em 1em; text-decoration: none; color: white;"
-            href="/login">Login</a></li>
+    <li style="float: left;"><a class="navbar_link" href="/">Home</a></li>
+    <li style="float: left;"><a class="navbar_link" href="/paste">Pastebin</a></li>
+    <li style="float: left;"><a class="navbar_link" href="/logout">Logout</a></li>
+    <li style="float: left;"><a class="navbar_link" href="/my-pastes">My Pastes</a></li>
+    <li style="float: left;"><a class="navbar_link" href="/chat">Chat</a></li>
+    {{ if .IsAdmin }}
+    <li style="float: left;"><a class="navbar_link" href="/signup">New User</a></li>
+    <li style="float: left;"><a class="navbar_link" href="/monitor">Monitor</a></li>
+    <li style="float: left;"><a class="navbar_link" href="/users">Users</a></li>
     {{ end }}
 </ul>
 {{ end }}
