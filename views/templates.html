@@ -17,6 +17,16 @@
             text-decoration: none;
             color: white;
         }
+
+        .users_input_class {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .users_label_class {
+            text-align: left;
+            width: 11em;
+        }
     </style>
     <script>
         function textAreaAdjust() {
@@ -67,4 +77,39 @@
     <li style="float: left;"><a class="navbar_link" href="/users">Users</a></li>
     {{ end }}
 </ul>
+{{ end }}
+
+{{ define "renderUsers" }}
+{{ range . }}
+<div style="border-top-style: solid; border-top-color: #161f27; border-top-width: 2px;">
+    <form action="/users/edit/{{ .ID }}" method="post">
+        <ul style="list-style-type: none; padding-left: 1em;">
+            <li>
+                <label class="users_label_class" for="id">ID:</label>
+                <input class="users_input_class" style="cursor: not-allowed;" type="text" name="id" value="{{.ID}}"
+                    readonly />
+            </li>
+            <li>
+                <label class="users_label_class" for="username">Username:</label>
+                <input class="users_input_class" type="text" name="username" value="{{.Username}}" />
+            </li>
+            <li>
+                <label class="users_label_class" for="failed_login_attempts">Failed Login
+                    Attempts:</label>
+                <input class="users_input_class" type="number" name="failed_login_attempts"
+                    value="{{.FailedLoginAttempts}}" />
+            </li>
+            <li>
+                <label class="users_label_class" for="new_password">New Password:</label>
+                <input class="users_input_class" type="password" name="new_password" />
+            </li>
+            <li>
+                <label class="users_label_class" for="admin">Is Admin?:</label>
+                <input class="users_input_class" type="text" name="admin" value="{{.Admin}}" pattern="(true|false)" />
+            </li>
+        </ul>
+        <input type="submit" value="Edit {{.Username}}" />
+    </form>
+</div>
+{{ end }}
 {{ end }}

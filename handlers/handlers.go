@@ -54,10 +54,22 @@ func NewUser(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusForbidden)
 	}
 	un := c.FormValue("username")
-	if un == "admin" || un == "brice" {
+	if un == "admin" {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+	err := validateUsername(un)
+	if err != nil {
+		return c.Render("views/signup", fiber.Map{
+			"Error": err.Error(),
+		})
+	}
 	pw := c.FormValue("password")
+	err = validatePassword(pw)
+	if err != nil {
+		return c.Render("views/signup", fiber.Map{
+			"Error": err.Error(),
+		})
+	}
 	dbc := getDB(c)
 	if _, ok := dbc.FindUser(un); ok {
 		errorString := fmt.Sprintf("Username '%s' already exists!", un)
@@ -68,7 +80,7 @@ func NewUser(c *fiber.Ctx) error {
 	if dbc.TotalUserCount() > 100 {
 		return c.SendString("Max users of 100 reached")
 	}
-	dbc.CreateUser(un, pw)
+	dbc.CreateUser(un, pw, false)
 	if user.IsAdmin() {
 		return c.Redirect("/")
 	}
@@ -141,12 +153,36 @@ func User(c *fiber.Ctx) error {
 
 func Users(c *fiber.Ctx) error {
 	user, isValid := checkAndGetCurrentUser(c)
-	if !isValid || !user.IsAdmin() {
+	if !isValid {
+		return c.Redirect("/login")
+	}
+	if !user.IsAdmin() {
 		return c.SendStatus(fiber.StatusForbidden)
 	}
 
 	// Render Users Page where as admin I can reset failed login attempts or update passwords
-	return nil
+	allUsers := getDB(c).GetAllUsers()
+	return c.Render("views/users", fiber.Map{"IsAdmin": user.IsAdmin(), "Username": user.Username, "Users": allUsers})
+}
+
+func EditUser(c *fiber.Ctx) error {
+	user, isValid := checkAndGetCurrentUser(c)
+	if !isValid {
+		return c.Redirect("/login")
+	}
+	if !user.IsAdmin() {
+		return c.SendStatus(fiber.StatusForbidden)
+	}
+	userId := c.Params("id")
+	err := editUser(c)
+	if err != nil {
+		// If theres an error validating the edit we need to return
+		allUsers := getDB(c).GetAllUsers()
+		return c.Render("views/users", fiber.Map{"IsAdmin": user.IsAdmin(), "Username": user.Username, "Users": allUsers, "Error": err.Error()})
+	}
+	allUsers := getDB(c).GetAllUsers()
+	successStr := fmt.Sprintf("Successfully Update User ID %s", userId)
+	return c.Render("views/users", fiber.Map{"IsAdmin": user.IsAdmin(), "Username": user.Username, "Users": allUsers, "Success": successStr})
 }
 
 func NewPost(c *fiber.Ctx) error {
@@ -190,6 +226,10 @@ func All(c *fiber.Ctx) error {
 }
 
 func NewPaste(c *fiber.Ctx) error {
+	user, isValid := checkAndGetCurrentUser(c)
+	if !isValid {
+		return c.Redirect("/login")
+	}
 	title := c.FormValue("title")
 	text := c.FormValue("text")
 	un := c.FormValue("username")
@@ -214,7 +254,7 @@ func NewPaste(c *fiber.Ctx) error {
 		"Title":    title,
 		"Text":     text,
 		"Id":       p.ID,
-		"IsAdmin":  true,
+		"IsAdmin":  user.IsAdmin(),
 	})
 }
 

@@ -130,6 +130,7 @@ func (a *App) setupRoutes() {
 	a.app.Post("/new-post", handlers.NewPost)
 	a.app.Post("/logout", handlers.Logout)
 	a.app.Post("/follow", handlers.Follow)
+	a.app.Post("/users/edit/:id", handlers.EditUser)
 
 	a.app.Get("/chat", handlers.Chat)
 	a.app.Post("/chat", handlers.ChatPost)

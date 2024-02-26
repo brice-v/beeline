@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+{{ template "header" }}
+
+<body>
+    {{ template "navbar" . }}
+    <h1>Edit Users</h1>
+    {{ if .Error }}
+    <p>
+        <span style="color: red;">Error: {{ .Error }}</span>
+        <br>
+    </p>
+    {{ end }}
+    {{ if .Success }}
+    <p>
+        <span style="color: lime;">Success: {{ .Success }}</span>
+        <br>
+    </p>
+    {{ end }}
+    <div>{{ template "renderUsers" .Users }}</div>
+</body>
+
+</html>
