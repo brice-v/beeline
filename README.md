@@ -24,3 +24,4 @@ A small indie web experience for you and your friends.
 - Update Readme
 - Update Website with link once this is in better shape
 - Allow Admins to Delete Posts/Chats/Pastes/etc.
+- Allow Admin to Create User with Temp password so user needs to reset it when they first login
