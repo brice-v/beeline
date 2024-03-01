@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"beeline/models"
+	"beeline/pubsub"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -345,15 +346,38 @@ func ChatRoom(c *fiber.Ctx) error {
 	})
 }
 
+var broker = pubsub.NewBroker()
+
 func WSChatRoom() func(*fiber.Ctx) error {
 	return websocket.New(func(c *websocket.Conn) {
-		log.Println(c.Params("room")) // 123
+		room := c.Params("room")
+		log.Printf("ws connection %s, joined %s", c.LocalAddr(), room)
+		if room == "" {
+			return
+		}
 
 		user, isValid := checkAndGetCurrentUserWS(c)
 		if !isValid {
 			c.Close()
 			return
 		}
+		s := broker.AddSubscriber(c)
+		broker.Subscribe(s, room)
+		s.AddTopic(room)
+
+		go func() {
+			for {
+				msg := s.PollMessage()
+				if msg.GetTopic() != room {
+					return
+				}
+				cm := msg.GetMessage()
+				if err := c.WriteMessage(websocket.TextMessage, cm.ToTextMessage()); err != nil {
+					log.Println("write:", err)
+					break
+				}
+			}
+		}()
 		var (
 			mt  int
 			msg []byte
@@ -366,23 +390,23 @@ func WSChatRoom() func(*fiber.Ctx) error {
 			}
 			if mt != websocket.TextMessage {
 				c.Close()
-				return
+				break
 			}
 			var cm models.ChatMessage
 			if err := json.Unmarshal(msg, &cm); err != nil {
 				log.Printf("json unmarshal: %s", err.Error())
 				break
 			}
-			if len([]rune(cm.Message)) < 3 || len([]rune(cm.Message)) > 255 || cm.Username != user.Username {
+			if cm.Username != user.Username {
+				break
+			}
+			if len([]rune(cm.Message)) < 3 || len([]rune(cm.Message)) > 255 {
 				continue
 			}
 			cm.Timestamp = time.Now()
+			broker.Publish(room, cm)
 			log.Printf("mt = %d, recv: %s, cm = %s", mt, msg, cm)
-
-			if err = c.WriteMessage(mt, cm.ToTextMessage()); err != nil {
-				log.Println("write:", err)
-				break
-			}
 		}
+		broker.RemoveSubscriber(s)
 	})
 }
