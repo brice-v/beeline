@@ -11,9 +11,14 @@ A small indie web experience for you and your friends.
 
 ### Config
 
-- Set `BEELINE_ADMIN_PW` before starting for the first time to create an admin user
+- Set `BEELINE_ADMIN_PW` before starting for the first time to create an admin
+  user
 
-### TODO
+### Admin Home
+
+![Home](/static_for_gh/home.png)
+
+#### TODO
 
 - Add realtime chat area with websockets?
   - [ ] Make storage for rooms (clear after some amount of time) (or some #/size
@@ -24,4 +29,5 @@ A small indie web experience for you and your friends.
 - Update Readme
 - Update Website with link once this is in better shape
 - Allow Admins to Delete Posts/Chats/Pastes/etc.
-- Allow Admin to Create User with Temp password so user needs to reset it when they first login
+- Allow Admin to Create User with Temp password so user needs to reset it when
+  they first login
